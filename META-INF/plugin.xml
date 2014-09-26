@@ -1,0 +1,42 @@
+<idea-plugin version="2">
+    <id>makasprzak.step-builder-generator</id>
+    <name>Step Builder Pattern generator</name>
+    <version>1.0</version>
+    <vendor email="mail.maciej.kasprzak@gmail.com" url="https://github.com/makasprzak">Maciej Kasprzak</vendor>
+
+    <description><![CDATA[
+      A handy Step Builder pattern generator (http://rdafbn.blogspot.ie/2012/07/step-builder-pattern_28.html)
+    ]]></description>
+
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="131"/>
+
+    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="stepBuilderGenerator" class="makasprzak.idea.plugins.StepBuilderGeneratorAction"
+                text="Generate Step Builder..."
+                description="Generates a Step Builder pattern, a builder that enforces mandatory fields initialisation">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
+
+</idea-plugin>
