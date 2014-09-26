@@ -1,13 +1,9 @@
 package makasprzak.idea.plugins;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +75,6 @@ public class ElementGenerator {
     }
 
     private String toSetterInjection(PsiField field, PsiClass psiClass, String methodName) {
-        System.out.println(field+" "+psiClass+" "+methodName);
         return format("%s.%s(this.%s);",uncapitalize(psiClass.getName()),methodName,name(field));
     }
 
