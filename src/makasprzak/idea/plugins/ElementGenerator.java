@@ -4,8 +4,10 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import java.util.Map;
 import static com.google.common.base.Joiner.on;
 import static com.google.common.collect.Lists.transform;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.capitalize;
 import static org.apache.commons.lang.StringUtils.uncapitalize;
 
@@ -59,11 +62,37 @@ public class ElementGenerator {
         );
     }
 
-    public String injection(PsiField field, String className) {
-        return format(
-            "%s.set%s(this.%s);",
-            uncapitalize(className),capitalize(name(field)),name(field)
-        );
+    public String injection(PsiField field, PsiClass psiClass) {
+        return asList(psiClass.getAllMethods())
+                .stream()
+                .filter(this::returnsVoid)
+                .filter(this::takesSingleParameter)
+                .map(PsiMethod::getName)
+                .filter(methodName -> hasCorrespondingSetterName(field, methodName))
+                .map(methodName -> toSetterInjection(field, psiClass, methodName))
+                .findFirst()
+                .orElseThrow(() -> throwError(field));
+    }
+
+    private RuntimeException throwError(PsiField field) {
+        return new RuntimeException("No corresponding setter found for "+field);
+    }
+
+    private String toSetterInjection(PsiField field, PsiClass psiClass, String methodName) {
+        System.out.println(field+" "+psiClass+" "+methodName);
+        return format("%s.%s(this.%s);",uncapitalize(psiClass.getName()),methodName,name(field));
+    }
+
+    private boolean hasCorrespondingSetterName(PsiField field, String methodName) {
+        return methodName.equalsIgnoreCase("set"+name(field));
+    }
+
+    private boolean takesSingleParameter(PsiMethod method) {
+        return method.getParameterList().getParametersCount() == 1;
+    }
+
+    private boolean returnsVoid(PsiMethod method) {
+        return "void".equals(method.getReturnType().getPresentableText());
     }
 
     public String builderClass(List<PsiField> fields) {
@@ -93,7 +122,7 @@ public class ElementGenerator {
                 "@Override\n" +
                 "public ").append(className).append(" build() {\n" +
                 "    ").append(className).append(" ").append(uncapitalize(className)).append(" = new ").append(className).append("();\n" +
-                "    ").append(on("\n    ").join(transform(psiFields, psiField -> injection(psiField, className)))).append("\n" +
+                "    ").append(on("\n    ").join(transform(psiFields, psiField -> injection(psiField, psiClass)))).append("\n" +
                 "    return ").append(uncapitalize(className)).append(";\n" +
                 "}")
                 .toString();

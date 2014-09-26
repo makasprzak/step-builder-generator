@@ -1,8 +1,6 @@
 package makasprzak.idea.plugins;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -11,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -57,7 +56,10 @@ public class ElementGeneratorTest {
     @Test
     public void shouldGenerateInjectionStatement() throws Exception {
         given(psiField.getName()).willReturn("someField");
-        assertThat(elementGenerator.injection(psiField, "PojoClass")).isEqualTo("pojoClass.setSomeField(this.someField);");
+        assertThat(elementGenerator.injection(psiField, psiClass(
+                "PojoClass",
+                psiMethod("void", "setSomeField", "String")
+        ))).isEqualTo("pojoClass.setSomeField(this.someField);");
     }
 
     @Test
@@ -89,15 +91,27 @@ public class ElementGeneratorTest {
 
     @Test
     public void shouldGenerateBuildMethod() throws Exception {
-        assertThat(elementGenerator.buildMethod(psiClass("PojoClass"), asList(psiField("name"), psiField("lastName"), psiField("age")))).isEqualTo(
+        assertThat(elementGenerator.buildMethod(
+                psiClass(
+                        "PojoClass",
+                        psiMethod("void", "setName", "String"),
+                        psiMethod("void", "setLastName", "String"),
+                        psiMethod("void", "setAge", "int")
+                        ),
+
+                asList(
+                        psiField("name"),
+                        psiField("lastName"),
+                        psiField("age")
+                ))).isEqualTo(
                 "@Override\n" +
-                "public PojoClass build() {\n" +
-                "    PojoClass pojoClass = new PojoClass();\n" +
-                "    pojoClass.setName(this.name);\n" +
-                "    pojoClass.setLastName(this.lastName);\n" +
-                "    pojoClass.setAge(this.age);\n" +
-                "    return pojoClass;\n" +
-                "}"
+                        "public PojoClass build() {\n" +
+                        "    PojoClass pojoClass = new PojoClass();\n" +
+                        "    pojoClass.setName(this.name);\n" +
+                        "    pojoClass.setLastName(this.lastName);\n" +
+                        "    pojoClass.setAge(this.age);\n" +
+                        "    return pojoClass;\n" +
+                        "}"
         );
     }
 
@@ -115,6 +129,43 @@ public class ElementGeneratorTest {
         PsiClass psiClass = mock(PsiClass.class);
         given(psiClass.getName()).willReturn(name);
         return psiClass;
+    }
+
+    private PsiClass psiClass(String name, PsiMethod ... methods) {
+        PsiClass psiClass = mock(PsiClass.class);
+        given(psiClass.getName()).willReturn(name);
+        given(psiClass.getAllMethods()).willReturn(methods);
+        return psiClass;
+    }
+
+    private PsiMethod psiMethod(String returnType, String name, String... args) {
+        PsiMethod method = mock(PsiMethod.class);
+        given(method.getName()).willReturn(name);
+        PsiParameterList parameterList = mock(PsiParameterList.class);
+        PsiParameter[] parameters = parameters(args);
+        given(parameterList.getParameters()).willReturn(parameters);
+        given(parameterList.getParametersCount()).willReturn(args.length);
+        given(method.getParameterList()).willReturn(parameterList);
+        PsiType psiType = mock(PsiType.class);
+        given(psiType.getPresentableText()).willReturn(returnType);
+        given(method.getReturnType()).willReturn(psiType);
+        return method;
+    }
+
+    private PsiParameter[] parameters(String[] args) {
+        return asList(args)
+                .stream()
+                .map(this::psiParameter)
+                .collect(toList())
+                .toArray(new PsiParameter[]{});
+    }
+
+    private PsiParameter psiParameter(String type) {
+        PsiParameter psiParameter = mock(PsiParameter.class);
+        PsiType psiType = mock(PsiType.class);
+        given(psiParameter.getType()).willReturn(psiType);
+        given(psiType.getPresentableText()).willReturn(type);
+        return psiParameter;
     }
 
     private PsiField psiField(String name) {
