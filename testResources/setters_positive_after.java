@@ -1,6 +1,3 @@
-import java.lang.Override;
-import java.lang.String;
-
 public class PojoWithSetters {
     private String name, lastName;
     private int age;
@@ -29,13 +26,31 @@ public class PojoWithSetters {
         this.age = age;
     }
 
-    public static class Builder implements NameStep, LastNameStep, AgeStep, BuildStep {
+    public static interface NameStep {
+        LastNameStep withName(String name);
+    }
 
+    public static interface LastNameStep {
+        AgeStep withLastName(String lastName);
+    }
+
+    public static interface AgeStep {
+        BuildStep withAge(int age);
+    }
+
+    public static interface BuildStep {
+        PojoWithSetters build();
+    }
+
+
+    public static class Builder implements NameStep, LastNameStep, AgeStep, BuildStep {
         private String name;
         private String lastName;
         private int age;
 
-        private Builder(){}
+        private Builder() {
+        }
+
         public static NameStep pojoWithSetters() {
             return new Builder();
         }
@@ -61,26 +76,10 @@ public class PojoWithSetters {
         @Override
         public PojoWithSetters build() {
             PojoWithSetters pojoWithSetters = new PojoWithSetters();
-            pojoWithSetters.setName(name);
-            pojoWithSetters.setLastName(lastName);
-            pojoWithSetters.setAge(age);
+            pojoWithSetters.setName(this.name);
+            pojoWithSetters.setLastName(this.lastName);
+            pojoWithSetters.setAge(this.age);
             return pojoWithSetters;
         }
-    }
-
-    public static interface NameStep {
-        WithLastName withName(String name);
-    }
-
-    public static interface LastNameStep {
-        WithAge withLastName(String lastName);
-    }
-
-    public static interface AgeStep {
-        BuildStep withAge(int age);
-    }
-
-    public static interface BuildStep {
-        PojoWithSetters build();
     }
 }

@@ -1,5 +1,6 @@
 package makasprzak.idea.plugins;
 
+import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -39,20 +40,14 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
             @Override
             protected void run() throws Throwable {
                 BuilderClassComposer composer = composer(getProject());
-                addBuilderClass(composer);
-                composer.stepInterfaces(psiClass, fields).forEach(stepInterface -> addInterface(stepInterface, currentElement));
-            }
-
-            private PsiClass addBuilderClass(BuilderClassComposer composer) {
-                PsiClass builderClass = composer.builderClass(psiClass, fields);
-                psiClass.addAfter(builderClass, currentElement);
-                reformat(builderClass);
-                return builderClass;
-            }
-
-            private void addInterface(PsiClass stepInterface, PsiElement builderClass) {
-                psiClass.addAfter(stepInterface, builderClass);
-                reformat(stepInterface);
+                ImmutableList.<PsiClass>builder()
+                        .add(composer.builderClass(psiClass, fields))
+                        .addAll(composer.stepInterfaces(psiClass, fields))
+                        .build()
+                        .forEach(inner -> {
+                            reformat(inner);
+                            psiClass.add(inner);
+                        });
             }
 
             private void reformat(PsiClass psiClass) {
