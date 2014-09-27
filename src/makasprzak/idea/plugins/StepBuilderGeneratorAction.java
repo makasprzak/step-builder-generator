@@ -6,55 +6,82 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.ui.CollectionListModel;
+
+import java.util.List;
 
 import static com.intellij.psi.JavaPsiFacade.getElementFactory;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-21.
  */
-public class StepBuilderGeneratorAction extends AnAction {
+public class StepBuilderGeneratorAction extends AnAction implements StepBuilderGenerator{
 
+    @Override
     public void actionPerformed(AnActionEvent e) {
-        PsiClass psiClass = getPsiClassFromContext(e);
+        PsiElement currentElement = getCurrentElement(e);
+        PsiClass psiClass = currentElement == null ? null : PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
         GeneratorDialog generatorDialog = new GeneratorDialog(psiClass);
         generatorDialog.show();
         if (generatorDialog.isOK()) {
-            generateBuilderPattern(generatorDialog.getFields(), psiClass);
+            generateBuilderPattern(generatorDialog.getFields().getItems(), psiClass, currentElement);
         }
     }
 
-    private void generateBuilderPattern(CollectionListModel<PsiField> fields, PsiClass psiClass) {
+    @Override
+    public void generateBuilderPattern(List<PsiField> fields, PsiClass psiClass, PsiElement currentElement) {
         new WriteCommandAction.Simple(psiClass.getProject()) {
             @Override
             protected void run() throws Throwable {
                 BuilderClassComposer composer = composer(getProject());
-                psiClass.add(composer.builderClass(psiClass, fields.getItems()));
-                composer.stepInterfaces(psiClass, fields.getItems()).forEach(stepInterface -> psiClass.add(stepInterface));
+                addBuilderClass(composer);
+                composer.stepInterfaces(psiClass, fields).forEach(stepInterface -> addInterface(stepInterface, currentElement));
+            }
+
+            private PsiClass addBuilderClass(BuilderClassComposer composer) {
+                PsiClass builderClass = composer.builderClass(psiClass, fields);
+                psiClass.addAfter(builderClass, currentElement);
+                reformat(builderClass);
+                return builderClass;
+            }
+
+            private void addInterface(PsiClass stepInterface, PsiElement builderClass) {
+                psiClass.addAfter(stepInterface, builderClass);
+                reformat(stepInterface);
+            }
+
+            private void reformat(PsiClass psiClass) {
+                CodeStyleManager.getInstance(getProject()).reformat(psiClass);
             }
         }.execute();
+    }
+
+    @Override
+    public void update(AnActionEvent e) {
+        e.getPresentation().setEnabled(getCurrentClass(e) != null);
+    }
+
+    private PsiClass getCurrentClass(AnActionEvent e) {
+        PsiElement currentElement = getCurrentElement(e);
+        return currentElement == null ? null : PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
     }
 
     private BuilderClassComposer composer(Project project) {
         return new BuilderClassComposer(new ElementGenerator(), getElementFactory(project));
     }
 
-    @Override
-    public void update(AnActionEvent e) {
-        PsiClass psiClass = getPsiClassFromContext(e);
-        e.getPresentation().setEnabled(psiClass != null);
-    }
-
-    private PsiClass getPsiClassFromContext(AnActionEvent e) {
+    private PsiElement getCurrentElement(AnActionEvent e) {
         PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         if (psiFile == null || editor == null) {
             return null;
         }
         int offset = editor.getCaretModel().getOffset();
-        PsiElement currentElement = psiFile.findElementAt(offset);
-        return PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
+        return psiFile.findElementAt(offset);
     }
 }
