@@ -7,6 +7,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.components.JBList;
 
 import javax.swing.*;
 
@@ -14,21 +15,32 @@ import javax.swing.*;
  * Created by Maciej Kasprzak on 2014-09-21.
  */
 public class GeneratorDialog extends DialogWrapper{
-    private CollectionListModel<PsiField> fields;
+    private JList<PsiField> fieldList;
     private final LabeledComponent<JPanel> component;
 
     protected GeneratorDialog(PsiClass psiClass) {
         super(psiClass.getProject());
         setTitle("Configure Step Builder");
-        this.fields = new CollectionListModel<PsiField>(psiClass.getAllFields());
-        JList<PsiField> fieldList = new JList(fields);
+        PsiField[] allFields = psiClass.getAllFields();
+        this.fieldList = new JBList(new CollectionListModel<>(allFields));
+        this.fieldList.setCellRenderer(new DefaultPsiElementCellRenderer());
+        this.fieldList.setSelectedIndices(range(allFields.length));
         fieldList.setCellRenderer(new DefaultPsiElementCellRenderer());
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(fieldList);
         decorator.disableAddAction();
+        decorator.disableRemoveAction();
         JPanel panel = decorator.createPanel();
         component = LabeledComponent.create(panel, "Fields to include in Step Builder:");
 
         init();
+    }
+
+    private int[] range(int size) {
+        int[] range = new int[size];
+        for (int i = 0; i < range.length; i++) {
+            range[i] = i;
+        }
+        return range;
     }
 
     @Override
@@ -36,7 +48,7 @@ public class GeneratorDialog extends DialogWrapper{
         return this.component;
     }
 
-    public CollectionListModel<PsiField> getFields() {
-        return fields;
+    public java.util.List<PsiField> getFields() {
+        return fieldList.getSelectedValuesList();
     }
 }

@@ -1,6 +1,10 @@
 package makasprzak.idea.plugins;
 
 import com.google.common.collect.ImmutableList;
+import com.intellij.codeInsight.generation.ClassMember;
+import com.intellij.codeInsight.generation.PsiFieldMember;
+import com.intellij.ide.util.MemberChooser;
+import com.intellij.ide.util.MemberChooserBuilder;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -13,10 +17,14 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.intellij.psi.JavaPsiFacade.getElementFactory;
+import static java.util.Arrays.asList;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-21.
@@ -30,8 +38,9 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
         GeneratorDialog generatorDialog = new GeneratorDialog(psiClass);
         generatorDialog.show();
         if (generatorDialog.isOK()) {
-            generateBuilderPattern(generatorDialog.getFields().getItems(), psiClass, currentElement);
+            generateBuilderPattern(generatorDialog.getFields(), psiClass, currentElement);
         }
+
     }
 
     @Override
