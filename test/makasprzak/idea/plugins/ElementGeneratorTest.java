@@ -56,10 +56,10 @@ public class ElementGeneratorTest {
     @Test
     public void shouldGenerateInjectionStatement() throws Exception {
         given(psiField.getName()).willReturn("someField");
-        assertThat(elementGenerator.injection(psiField, psiClass(
+        assertThat(elementGenerator.setterInjection(psiField, psiClass(
                 "PojoClass",
                 psiMethod("void", "setSomeField", "String")
-        ))).isEqualTo("pojoClass.setSomeField(this.someField);");
+        ).build())).isEqualTo("pojoClass.setSomeField(this.someField);");
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ElementGeneratorTest {
                         psiMethod("void", "setName", "String"),
                         psiMethod("void", "setLastName", "String"),
                         psiMethod("void", "setAge", "int")
-                        ),
+                        ).build(),
 
                 asList(
                         psiField("name"),
@@ -131,11 +131,30 @@ public class ElementGeneratorTest {
         return psiClass;
     }
 
-    private PsiClass psiClass(String name, PsiMethod ... methods) {
+    private PsiClassBuilder psiClass(String name, PsiMethod ... methods) {
         PsiClass psiClass = mock(PsiClass.class);
         given(psiClass.getName()).willReturn(name);
         given(psiClass.getAllMethods()).willReturn(methods);
-        return psiClass;
+        return new PsiClassBuilder(psiClass);
+    }
+
+    private static class PsiClassBuilder {
+        private PsiClass base;
+        private PsiMethod[] constructors = new PsiMethod[0];
+
+        private PsiClassBuilder(PsiClass base) {
+            this.base = base;
+        }
+
+        public PsiClassBuilder withConstructors(PsiMethod ... constructors) {
+            this.constructors = constructors;
+            return this;
+        }
+
+        public PsiClass build() {
+            given(base.getConstructors()).willReturn(constructors);
+            return this.base;
+        }
     }
 
     private PsiMethod psiMethod(String returnType, String name, String... args) {

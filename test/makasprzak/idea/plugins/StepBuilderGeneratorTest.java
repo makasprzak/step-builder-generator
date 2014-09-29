@@ -18,8 +18,12 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         return new File(getJarPathForClass(StepBuilderGeneratorTest.class)).getPath();
     }
 
-    public void test_shouldGenerateInnerBuilderForPojoWithSetterInjection() throws Exception {
-        shouldGenerateBuilder("setters_positive");
+    public void test_shouldSupportSetterInjection() throws Exception {
+        shouldGenerateBuilder("setters");
+    }
+
+    public void test_shouldSupportConstructorInjection() throws Exception {
+        shouldGenerateBuilder("constructor");
     }
 
     private void shouldGenerateBuilder(String setters_positive) {
