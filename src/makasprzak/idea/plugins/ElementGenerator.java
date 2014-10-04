@@ -1,5 +1,11 @@
 package makasprzak.idea.plugins;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
@@ -7,6 +13,7 @@ import com.intellij.psi.PsiMethod;
 import java.util.*;
 
 import static com.google.common.base.Joiner.on;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -56,42 +63,24 @@ public class ElementGenerator {
         );
     }
 
-    public String setterInjection(PsiField field, PsiClass psiClass) {
-        return asList(psiClass.getAllMethods())
-                .stream()
-                .filter(this::returnsVoid)
-                .filter(this::takesSingleParameter)
-                .map(PsiMethod::getName)
-                .filter(methodName -> hasCorrespondingSetterName(field, methodName))
-                .map(methodName -> toSetterInjection(field, psiClass, methodName))
-                .findFirst()
-                .orElseThrow(() -> throwError(field));
-    }
-
-    private RuntimeException throwError(PsiField field) {
-        return new RuntimeException("No corresponding setter found for "+field);
-    }
-
-    private String toSetterInjection(PsiField field, PsiClass psiClass, String methodName) {
-        return format("%s.%s(this.%s);",uncapitalize(psiClass.getName()),methodName,name(field));
-    }
-
-    private boolean hasCorrespondingSetterName(PsiField field, String methodName) {
-        return methodName.equalsIgnoreCase("set"+name(field));
-    }
-
-    private boolean takesSingleParameter(PsiMethod method) {
-        return method.getParameterList().getParametersCount() == 1;
-    }
-
-    private boolean returnsVoid(PsiMethod method) {
-        return method.getReturnType() != null && "void".equals(method.getReturnType().getPresentableText());
+    public String setterInjection(final PsiField field, final PsiClass psiClass) {
+        Iterable<PsiMethod> returnVoid = filter(asList(psiClass.getAllMethods()), returnsVoid());
+        Iterable<PsiMethod> takeSingleParameter = filter(returnVoid, takesSingleParameter());
+        final Iterable<String> methodNames = Iterables.transform(takeSingleParameter, getName());
+        Iterable<String> correspondingSetterNames = Iterables.filter(methodNames, hasCorrespondingSetterName(field));
+        Iterable<String> setterInjections = Iterables.transform(correspondingSetterNames, toSetterInjection(field, psiClass));
+        ImmutableList<String> setterInjectionsList = ImmutableList.copyOf(setterInjections);
+        if (setterInjectionsList.isEmpty()) {
+            throw throwError(field);
+        } else {
+            return setterInjectionsList.get(0);
+        }
     }
 
     public String builderClass(List<PsiField> fields) {
         return format(
                 "public static class Builder implements %s, BuildStep {}",
-                on(", ").join(transform(fields, field -> interfaceName(field)))
+                on(", ").join(transform(fields, toInterfaceName()))
         );
     }
 
@@ -111,23 +100,107 @@ public class ElementGenerator {
 
     public String buildMethod(PsiClass psiClass, List<PsiField> psiFields) {
         List<PsiMethod> constructors = asList(psiClass.getConstructors());
-        Optional<PsiMethod> first = constructors
-                .stream()
-                .sorted((left, right) -> compareByParametersCount(right, left))
-                .findFirst();
-        if (first.isPresent()) {
+        if (!constructors.isEmpty()) {
+            PsiMethod biggestConstructor = new Ordering<PsiMethod>() {
+                @Override
+                public int compare(PsiMethod left, PsiMethod right) {
+                    return compareByParametersCount(left, right);
+                }
+            }.max(constructors);
             String className = psiClass.getName();
             return new StringBuilder(
                     "@Override\n" +
                             "public ").append(className).append(" build() {\n" +
                     "    return new ").append(className).append("(\n" +
-                    "        ").append(on(",\n        ").join(transform(psiFields, field -> "this."+field.getName()))).append("\n" +
+                    "        ").append(on(",\n        ").join(transform(psiFields, toParameterBinding()))).append("\n" +
                     "    );\n" +
                     "}").toString();
-
         } else {
             return settersInjectioinBuildMethod(psiClass, psiFields);
         }
+    }
+
+    private Function<PsiField, Object> toParameterBinding() {
+        return new Function<PsiField, Object>() {
+            @Override
+            public Object apply(PsiField field) {
+                return "this." + field.getName();
+            }
+        };
+    }
+
+    private Function<PsiField, Object> toInterfaceName() {
+        return new Function<PsiField, Object>() {
+            @Override
+            public Object apply(PsiField field) {
+                return interfaceName(field);
+            }
+        };
+    }
+
+    private Function<String, String> toSetterInjection(final PsiField field, final PsiClass psiClass) {
+        return new Function<String, String>() {
+            @Override
+            public String apply(String s) {
+                return toSetterInjection(field,psiClass,s);
+            }
+        };
+    }
+
+    private Predicate<String> hasCorrespondingSetterName(final PsiField field) {
+        return new Predicate<String>() {
+            @Override
+            public boolean apply(String s) {
+                return hasCorrespondingSetterName(field, s);
+            }
+        };
+    }
+
+    private Function<PsiMethod, String> getName() {
+        return new Function<PsiMethod, String>() {
+            @Override
+            public String apply(PsiMethod psiMethod) {
+                return psiMethod.getName();
+            }
+        };
+    }
+
+    private Predicate<PsiMethod> takesSingleParameter() {
+        return new Predicate<PsiMethod>() {
+            @Override
+            public boolean apply(PsiMethod psiMethod) {
+                return takesSingleParameter(psiMethod);
+            }
+        };
+    }
+
+    private Predicate<PsiMethod> returnsVoid() {
+        return new Predicate<PsiMethod>() {
+            @Override
+            public boolean apply(PsiMethod psiMethod) {
+                return returnsVoid(psiMethod);
+            }
+        };
+    }
+
+    private RuntimeException throwError(PsiField field) {
+        return new RuntimeException("No corresponding setter found for "+field);
+    }
+
+    private String toSetterInjection(PsiField field, PsiClass psiClass, String methodName) {
+        return format("%s.%s(this.%s);",uncapitalize(psiClass.getName()),methodName,name(field));
+    }
+
+    private boolean hasCorrespondingSetterName(PsiField field, String methodName) {
+        return methodName.equalsIgnoreCase("set" + name(field));
+    }
+
+    private boolean takesSingleParameter(PsiMethod method) {
+        return method.getParameterList().getParametersCount() == 1;
+    }
+
+    private boolean returnsVoid(PsiMethod method) {
+        return method.getReturnType() != null && "void".equals(method.getReturnType().getPresentableText());
     }
 
     private int compareByParametersCount(PsiMethod left, PsiMethod right) {
@@ -154,15 +227,24 @@ public class ElementGenerator {
         return returnedInterfaceByField;
     }
 
-    private String settersInjectioinBuildMethod(PsiClass psiClass, List<PsiField> psiFields) {
+    private String settersInjectioinBuildMethod(final PsiClass psiClass, List<PsiField> psiFields) {
         String className = psiClass.getName();
         return new StringBuilder(
                 "@Override\n" +
                         "public ").append(className).append(" build() {\n" +
                 "    ").append(className).append(" ").append(uncapitalize(className)).append(" = new ").append(className).append("();\n" +
-                "    ").append(on("\n    ").join(transform(psiFields, psiField -> setterInjection(psiField, psiClass)))).append("\n" +
+                "    ").append(on("\n    ").join(transform(psiFields, toSetterInjection(psiClass)))).append("\n" +
                 "    return ").append(uncapitalize(className)).append(";\n" +
                 "}")
                 .toString();
+    }
+
+    private Function<PsiField, String> toSetterInjection(final PsiClass psiClass) {
+        return new Function<PsiField, String>() {
+    @Override
+    public String apply(PsiField field) {
+        return setterInjection(field, psiClass);
+    }
+};
     }
 }

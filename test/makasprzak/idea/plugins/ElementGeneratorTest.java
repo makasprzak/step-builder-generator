@@ -1,5 +1,7 @@
 package makasprzak.idea.plugins;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.intellij.psi.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -172,11 +173,16 @@ public class ElementGeneratorTest {
     }
 
     private PsiParameter[] parameters(String[] args) {
-        return asList(args)
-                .stream()
-                .map(this::psiParameter)
-                .collect(toList())
-                .toArray(new PsiParameter[]{});
+        return Lists.transform(asList(args), toPsiParameters()).toArray(new PsiParameter[]{});
+    }
+
+    private Function<String, Object> toPsiParameters() {
+        return new Function<String, Object>() {
+            @Override
+            public Object apply(String s) {
+                return psiParameter(s);
+            }
+        };
     }
 
     private PsiParameter psiParameter(String type) {

@@ -1,10 +1,6 @@
 package makasprzak.idea.plugins;
 
 import com.google.common.collect.ImmutableList;
-import com.intellij.codeInsight.generation.ClassMember;
-import com.intellij.codeInsight.generation.PsiFieldMember;
-import com.intellij.ide.util.MemberChooser;
-import com.intellij.ide.util.MemberChooserBuilder;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -17,14 +13,10 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtil;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.intellij.psi.JavaPsiFacade.getElementFactory;
-import static java.util.Arrays.asList;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-21.
@@ -44,19 +36,18 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
     }
 
     @Override
-    public void generateBuilderPattern(List<PsiField> fields, PsiClass psiClass, PsiElement currentElement) {
+    public void generateBuilderPattern(final List<PsiField> fields, final PsiClass psiClass, PsiElement currentElement) {
         new WriteCommandAction.Simple(psiClass.getProject()) {
             @Override
             protected void run() throws Throwable {
                 BuilderClassComposer composer = composer(getProject());
-                ImmutableList.<PsiClass>builder()
+                for (PsiClass inner : ImmutableList.<PsiClass>builder()
                         .add(composer.builderClass(psiClass, fields))
                         .addAll(composer.stepInterfaces(psiClass, fields))
-                        .build()
-                        .forEach(inner -> {
-                            reformat(inner);
-                            psiClass.add(inner);
-                        });
+                        .build()) {
+                    reformat(inner);
+                    psiClass.add(inner);
+                }
             }
 
             private void reformat(PsiClass psiClass) {

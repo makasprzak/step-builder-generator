@@ -1,12 +1,13 @@
 package makasprzak.idea.plugins;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.intellij.psi.*;
 
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-23.
@@ -24,23 +25,34 @@ public class BuilderClassComposer {
     public PsiClass builderClass(PsiClass psiClass, List<PsiField> fields) {
         Map<PsiField, String> nextInterfacesByFields = mapNextStepsByFields(fields);
         PsiClass builderClass = generateClass(elementGenerator.builderClass(fields));
-        fields.forEach(field -> addField(builderClass, field));
+        for (PsiField field : fields) {
+            addField(builderClass, field);
+        }
         builderClass.add(createBuilderConstructor(builderClass));
         builderClass.add(createBuilderFactoryMethod(psiClass, fields, builderClass));
-        fields.forEach(field -> addBuilderMethod(nextInterfacesByFields, builderClass, field));
+        for (PsiField field : fields) {
+            addBuilderMethod(nextInterfacesByFields, builderClass, field);
+        }
         builderClass.add(createBuildMethod(psiClass, fields, builderClass));
         return builderClass;
     }
 
     public List<PsiClass> stepInterfaces(PsiClass psiClass, List<PsiField> fields) {
-        Map<PsiField, String> nextInterfacesByFields = mapNextStepsByFields(fields);
+        final Map<PsiField, String> nextInterfacesByFields = mapNextStepsByFields(fields);
         return ImmutableList.<PsiClass>builder()
                 .addAll(
-                        fields.stream()
-                                .map(field -> createWithStepInterface(nextInterfacesByFields, field))
-                                .collect(toList())
+                        Lists.transform(fields, toWithStepInterface(nextInterfacesByFields))
                 ).add(createBuildStepInterface(psiClass)
                 ).build();
+    }
+
+    private Function<PsiField, PsiClass> toWithStepInterface(final Map<PsiField, String> nextInterfacesByFields) {
+        return new Function<PsiField, PsiClass>() {
+            @Override
+            public PsiClass apply(PsiField field) {
+                return createWithStepInterface(nextInterfacesByFields, field);
+            }
+        };
     }
 
     private PsiMethod createBuildMethod(PsiClass psiClass, List<PsiField> fields, PsiClass builderClass) {
