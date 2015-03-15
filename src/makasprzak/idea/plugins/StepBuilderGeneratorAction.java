@@ -13,10 +13,13 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import makasprzak.idea.plugins.element.ElementGenerator;
+import makasprzak.idea.plugins.model.StepBuilderPattern;
 
 import java.util.List;
 
 import static com.intellij.psi.JavaPsiFacade.getElementFactory;
+import static makasprzak.idea.plugins.model.PsiPojo.Builder.psiPojo;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-21.
@@ -40,15 +43,19 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
         new WriteCommandAction.Simple(psiClass.getProject()) {
             @Override
             protected void run() throws Throwable {
-                BuilderClassComposer composer = composer(getProject());
+                StepBuilderPattern stepBuilderPattern = composer(getProject()).build(psiPojo()
+                        .withPsiClass(psiClass)
+                        .withFields(fields)
+                        .build());
                 for (PsiClass inner : ImmutableList.<PsiClass>builder()
-                        .add(composer.builderClass(psiClass, fields))
-                        .addAll(composer.stepInterfaces(psiClass, fields))
+                        .add(stepBuilderPattern.getBuilderClass())
+                        .addAll(stepBuilderPattern.getStepInterfaces())
                         .build()) {
                     reformat(inner);
                     psiClass.add(inner);
                 }
             }
+
 
             private void reformat(PsiClass psiClass) {
                 CodeStyleManager.getInstance(getProject()).reformat(psiClass);
@@ -66,8 +73,8 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
         return currentElement == null ? null : PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
     }
 
-    private BuilderClassComposer composer(Project project) {
-        return new BuilderClassComposer(new ElementGenerator(), getElementFactory(project));
+    private BuilderPatternComposerImpl composer(Project project) {
+        return new BuilderPatternComposerImpl(new PsiElementGenerator(), getElementFactory(project), new ElementGenerator());
     }
 
     private PsiElement getCurrentElement(AnActionEvent e) {

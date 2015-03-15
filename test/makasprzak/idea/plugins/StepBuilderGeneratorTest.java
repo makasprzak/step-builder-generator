@@ -26,12 +26,16 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         shouldGenerateBuilder("constructor");
     }
 
-    private void shouldGenerateBuilder(String setters_positive) {
-        myFixture.configureByFile(setters_positive + "_before.java");
+    public void test_shouldUseConstructorSignatureWhenChoosingConstructorInjection() throws Exception {
+        shouldGenerateBuilder("constructorWithVararg");
+    }
+
+    private void shouldGenerateBuilder(String prefix) {
+        myFixture.configureByFile(prefix + "_before.java");
         PsiElement elementAtCaret = myFixture.getFile().findElementAt(myFixture.getCaretOffset());
         PsiClass pojoWithSettersPsiClass = PsiTreeUtil.getParentOfType(elementAtCaret, PsiClass.class);
         List<PsiField> psiFields = Arrays.asList(pojoWithSettersPsiClass.getAllFields());
         new StepBuilderGeneratorAction().generateBuilderPattern(psiFields,pojoWithSettersPsiClass, elementAtCaret);
-        myFixture.checkResultByFile(setters_positive + "_after.java");
+        myFixture.checkResultByFile(prefix + "_after.java");
     }
 }
