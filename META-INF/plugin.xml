@@ -33,8 +33,7 @@
     <actions>
         <!-- Add your actions here -->
         <action id="stepBuilderGenerator" class="makasprzak.idea.plugins.StepBuilderGeneratorAction"
-                text="Generate Step Builder..."
-                description="Generates a Step Builder pattern, a builder that enforces mandatory fields initialisation">
+                text="Generate Step Builder...">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
     </actions>

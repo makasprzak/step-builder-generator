@@ -36,6 +36,7 @@ public class PojoWithConstructor {
         PojoWithConstructor build();
     }
 
+
     public static class Builder implements NameStep, LastNameStep, AgeStep, BuildStep {
         private String name;
         private String lastName;
@@ -68,12 +69,11 @@ public class PojoWithConstructor {
 
         @Override
         public PojoWithConstructor build() {
-            PojoWithConstructor pojoWithConstructor = new PojoWithConstructor(
+            return new PojoWithConstructor(
                     this.name,
                     this.lastName,
                     this.age
             );
-            return pojoWithConstructor;
         }
     }
 }
