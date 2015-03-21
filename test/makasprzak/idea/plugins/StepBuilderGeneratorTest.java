@@ -10,7 +10,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.google.common.collect.Lists.transform;
 import static com.intellij.openapi.application.PathManager.getJarPathForClass;
+import static makasprzak.idea.plugins.mappers.PsiFieldMapper.toProperty;
 
 public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
     @Override
@@ -35,7 +37,8 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         PsiElement elementAtCaret = myFixture.getFile().findElementAt(myFixture.getCaretOffset());
         PsiClass pojoWithSettersPsiClass = PsiTreeUtil.getParentOfType(elementAtCaret, PsiClass.class);
         List<PsiField> psiFields = Arrays.asList(pojoWithSettersPsiClass.getAllFields());
-        new StepBuilderGeneratorAction().generateBuilderPattern(psiFields,pojoWithSettersPsiClass, elementAtCaret);
+        new StepBuilderGeneratorAction().generateBuilderPattern(
+                transform(psiFields, toProperty()),pojoWithSettersPsiClass, elementAtCaret);
         myFixture.checkResultByFile(prefix + "_after.java");
     }
 }

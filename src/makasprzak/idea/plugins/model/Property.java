@@ -1,5 +1,7 @@
 package makasprzak.idea.plugins.model;
 
+import com.google.common.base.Objects;
+
 public class Property {
     private final String name;
     private final String type;
@@ -15,6 +17,30 @@ public class Property {
 
     public String getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("name", name)
+                .add("type", type)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Property that = (Property) o;
+
+        return Objects.equal(this.name, that.name) &&
+                Objects.equal(this.type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name, type);
     }
 
     public static interface NameStep {

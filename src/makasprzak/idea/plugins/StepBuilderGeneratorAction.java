@@ -14,6 +14,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import makasprzak.idea.plugins.element.ElementGenerator;
+import makasprzak.idea.plugins.generationstrategy.GenerationConcreteStrategy;
+import makasprzak.idea.plugins.generationstrategy.GenerationStrategy;
+import makasprzak.idea.plugins.model.Pojo;
+import makasprzak.idea.plugins.model.Property;
 import makasprzak.idea.plugins.model.StepBuilderPattern;
 
 import java.util.List;
@@ -30,22 +34,24 @@ public class StepBuilderGeneratorAction extends AnAction implements StepBuilderG
     public void actionPerformed(AnActionEvent e) {
         PsiElement currentElement = getCurrentElement(e);
         PsiClass psiClass = currentElement == null ? null : PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
-        GeneratorDialog generatorDialog = new GeneratorDialog(psiClass);
-        generatorDialog.show();
-        if (generatorDialog.isOK()) {
-            generateBuilderPattern(generatorDialog.getFields(), psiClass, currentElement);
+        //TODO generation strategy client
+        GenerationStrategy generationStrategy = GenerationConcreteStrategy.FROM_FIELDS.get();
+        generationStrategy.start(psiClass);
+        if (generationStrategy.isOk()) {
+            generateBuilderPattern(generationStrategy.getProperties(), psiClass, currentElement);
         }
 
     }
 
     @Override
-    public void generateBuilderPattern(final List<PsiField> fields, final PsiClass psiClass, PsiElement currentElement) {
+    public void generateBuilderPattern(final List<Property> properties, final PsiClass psiClass, PsiElement currentElement) {
         new WriteCommandAction.Simple(psiClass.getProject()) {
             @Override
             protected void run() throws Throwable {
-                StepBuilderPattern stepBuilderPattern = composer(getProject()).build(psiPojo()
-                        .withPsiClass(psiClass)
-                        .withFields(fields)
+                StepBuilderPattern stepBuilderPattern = composer(getProject()).build(Pojo.Builder.pojo()
+                        .withName(psiClass.getName())
+                        .withProperties(properties)
+                        .withConstructorInjection(false)
                         .build());
                 for (PsiClass inner : ImmutableList.<PsiClass>builder()
                         .add(stepBuilderPattern.getBuilderClass())

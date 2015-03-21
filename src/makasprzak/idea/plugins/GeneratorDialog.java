@@ -1,5 +1,7 @@
 package makasprzak.idea.plugins;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.intellij.ide.util.DefaultPsiElementCellRenderer;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
@@ -8,29 +10,36 @@ import com.intellij.psi.PsiField;
 import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
+import makasprzak.idea.plugins.mappers.PsiFieldMapper;
+import makasprzak.idea.plugins.model.Property;
 
 import javax.swing.*;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.google.common.collect.Lists.transform;
+import static java.util.Arrays.asList;
+import static makasprzak.idea.plugins.mappers.PsiFieldMapper.toProperty;
 
 /**
  * Created by Maciej Kasprzak on 2014-09-21.
  */
 public class GeneratorDialog extends DialogWrapper{
-    private JList<PsiField> fieldList;
+    private JList<Property> properties;
     private final LabeledComponent<JPanel> component;
 
-    protected GeneratorDialog(PsiClass psiClass) {
+    protected GeneratorDialog(PsiClass psiClass, List<Property> allProperties) {
         super(psiClass.getProject());
         setTitle("Configure Step Builder");
-        PsiField[] allFields = psiClass.getAllFields();
-        this.fieldList = new JBList(new CollectionListModel<>(allFields));
-        this.fieldList.setCellRenderer(new DefaultPsiElementCellRenderer());
-        this.fieldList.setSelectedIndices(range(allFields.length));
-        fieldList.setCellRenderer(new DefaultPsiElementCellRenderer());
-        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(fieldList);
+        this.properties = new JBList(new CollectionListModel<>(allProperties));
+        this.properties.setCellRenderer(new DefaultPsiElementCellRenderer());
+        this.properties.setSelectedIndices(range(allProperties.size()));
+        properties.setCellRenderer(new DefaultPsiElementCellRenderer());
+        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(properties);
         decorator.disableAddAction();
         decorator.disableRemoveAction();
         JPanel panel = decorator.createPanel();
-        component = LabeledComponent.create(panel, "Fields to include in Step Builder:");
+        component = LabeledComponent.create(panel, "Properties to include in Step Builder:");
 
         init();
     }
@@ -48,7 +57,7 @@ public class GeneratorDialog extends DialogWrapper{
         return this.component;
     }
 
-    public java.util.List<PsiField> getFields() {
-        return fieldList.getSelectedValuesList();
+    public List<Property> getProperties() {
+        return properties.getSelectedValuesList();
     }
 }
