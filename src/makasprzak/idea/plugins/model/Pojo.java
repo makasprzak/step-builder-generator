@@ -1,5 +1,6 @@
 package makasprzak.idea.plugins.model;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
 import java.util.List;
@@ -30,7 +31,13 @@ public class Pojo {
     }
 
     public Optional<Property> nextProperty(Property property) {
-        return null;
+        if (!properties.contains(property)) throw new RuntimeException(property + " not found in " + this);
+        int nextPropertyIndex = properties.indexOf(property) + 1;
+        if (nextPropertyIndex == properties.size()) {
+            return Optional.absent();
+        } else {
+            return Optional.of(properties.get(nextPropertyIndex));
+        }
     }
 
     public static interface NameStep {
@@ -87,6 +94,15 @@ public class Pojo {
                     this.properties,
                     this.constructorInjection
             );
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                    .add("name", name)
+                    .add("properties", properties)
+                    .add("constructorInjection", constructorInjection)
+                    .toString();
         }
     }
 }

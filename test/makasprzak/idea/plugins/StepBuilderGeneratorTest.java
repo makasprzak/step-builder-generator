@@ -37,7 +37,7 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         PsiElement elementAtCaret = myFixture.getFile().findElementAt(myFixture.getCaretOffset());
         PsiClass pojoWithSettersPsiClass = PsiTreeUtil.getParentOfType(elementAtCaret, PsiClass.class);
         List<PsiField> psiFields = Arrays.asList(pojoWithSettersPsiClass.getAllFields());
-        new StepBuilderGeneratorAction().generateBuilderPattern(
+        new StepBuilderGeneratorImpl().generateBuilderPattern(
                 transform(psiFields, toProperty()),pojoWithSettersPsiClass, elementAtCaret);
         myFixture.checkResultByFile(prefix + "_after.java");
     }

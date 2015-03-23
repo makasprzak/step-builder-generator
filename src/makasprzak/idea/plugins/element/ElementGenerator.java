@@ -60,7 +60,7 @@ public class ElementGenerator {
                     "public %1$s build() {\n" +
                     "    return new %1$s(\n" +
                     "    %2$s\n" +
-                    ")\n" +
+                    ");\n" +
                     "}", pojo.getName(), on(",\n    ").join(transform(pojo.getProperties(), new Function<Property, String>() {
                 @Override
                 public String apply(Property property) {

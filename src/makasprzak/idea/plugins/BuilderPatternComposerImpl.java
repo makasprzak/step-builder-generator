@@ -17,7 +17,7 @@ import static makasprzak.idea.plugins.model.StepBuilderPattern.Builder.stepBuild
 
 
 /**
- * Created by Maciej Kasprzak on 2014-09-23.
+ * @author makasprzak
  */
 public class BuilderPatternComposerImpl implements BuilderPatternComposer {
 
@@ -31,15 +31,6 @@ public class BuilderPatternComposerImpl implements BuilderPatternComposer {
         this.psiElementGenerator = psiElementGenerator;
         this.psiElementFactory = psiElementFactory;
         this.elementGenerator = elementGenerator;
-    }
-
-    @Override
-    public StepBuilderPattern build(PsiPojo psiPojo) {
-        Map<PsiField, String> nextInterfacesByFields = psiElementGenerator.mapReturnedInterfaces(psiPojo.getFields());
-        return stepBuilderPattern()
-                .withBuilderClass(builderClass(psiPojo, nextInterfacesByFields))
-                .withStepInterfaces(stepInterfaces(psiPojo.getPsiClass(), psiPojo.getFields(), nextInterfacesByFields))
-                .build();
     }
 
     @Override
@@ -74,33 +65,6 @@ public class BuilderPatternComposerImpl implements BuilderPatternComposer {
                             }
                         })
                 ).add(generateClass(elementGenerator.buildStepInterface(pojo))
-                ).build();
-    }
-
-    private PsiClass builderClass(PsiPojo psiPojo, Map<PsiField, String> nextInterfacesByFields) {
-        PsiClass builderClass = generateClass(psiElementGenerator.builderClass(psiPojo));
-        for (PsiField field : psiPojo.getFields()) {
-            builderClass.add(psiElementFactory.createFieldFromText(psiElementGenerator.field(field) + ';', builderClass));
-        }
-        builderClass.add(psiElementFactory.createMethodFromText(psiElementGenerator.builderConstructor(), builderClass));
-        builderClass.add(psiElementFactory.createMethodFromText(psiElementGenerator.builderFactoryMethod(psiPojo.getPsiClass(), psiPojo.getFields().get(0)), builderClass));
-        for (PsiField field : psiPojo.getFields()) {
-            builderClass.add(psiElementFactory.createMethodFromText(psiElementGenerator.builderMethod(field, nextInterfacesByFields.get(field)), builderClass));
-        }
-        builderClass.add(psiElementFactory.createMethodFromText(psiElementGenerator.buildMethod(psiPojo.getPsiClass(), psiPojo.getFields()), builderClass));
-        return builderClass;
-    }
-
-    private List<PsiClass> stepInterfaces(PsiClass psiClass, List<PsiField> fields, final Map<PsiField, String> nextInterfacesByFields) {
-        return ImmutableList.<PsiClass>builder()
-                .addAll(
-                        Lists.transform(fields, new Function<PsiField, PsiClass>() {
-                            @Override
-                            public PsiClass apply(PsiField field) {
-                                return generateClass(psiElementGenerator.interfaceDefinition(field, nextInterfacesByFields.get(field)));
-                            }
-                        })
-                ).add(generateClass(psiElementGenerator.buildStepInterface(psiClass))
                 ).build();
     }
 

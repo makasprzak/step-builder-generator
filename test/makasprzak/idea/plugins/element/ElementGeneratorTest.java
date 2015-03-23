@@ -195,7 +195,7 @@ public class ElementGeneratorTest {
                         "    this.name,\n" +
                         "    this.lastName,\n" +
                         "    this.age\n" +
-                        ")\n" +
+                        ");\n" +
                         "}"
         );
     }
@@ -210,7 +210,7 @@ public class ElementGeneratorTest {
                         "    this.country,\n" +
                         "    this.city,\n" +
                         "    this.children\n" +
-                        ")\n" +
+                        ");\n" +
                         "}"
         );
     }
