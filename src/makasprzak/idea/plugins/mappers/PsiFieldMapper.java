@@ -6,7 +6,8 @@ import makasprzak.idea.plugins.model.Property;
 
 import static makasprzak.idea.plugins.model.Property.Builder.property;
 
-public class PsiFieldMapper {
+public class PsiFieldMapper implements PsiMapper<PsiField>{
+    @Override
     public Property map(PsiField psiField) {
         return property()
                 .withName(psiField.getName())

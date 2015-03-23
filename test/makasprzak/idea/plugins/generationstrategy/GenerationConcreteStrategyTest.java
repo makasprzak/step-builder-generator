@@ -1,8 +1,8 @@
 package makasprzak.idea.plugins.generationstrategy;
 
 import com.intellij.psi.PsiClass;
-import makasprzak.idea.plugins.GeneratorDialog;
-import makasprzak.idea.plugins.GeneratorDialogFactory;
+import makasprzak.idea.plugins.dialog.DialogFactory;
+import makasprzak.idea.plugins.dialog.GeneratorDialog;
 import makasprzak.idea.plugins.model.Property;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,14 +20,14 @@ import static org.mockito.Mockito.verify;
 public class GenerationConcreteStrategyTest {
     
     @Mock private PsiClass psiClass;
-    @Mock private GeneratorDialogFactory generatorDialogFactory;
+    @Mock private DialogFactory generatorDialogFactory;
     @Mock private GeneratorDialog generatorDialog;
     @Mock private List<Property> properties;
     @InjectMocks private GenerateFromFieldsCS generateFromFieldsCS;
 
     @Test
     public void shouldGenerateFromFields() throws Exception {
-        given(generatorDialogFactory.createFromFields(psiClass)).willReturn(generatorDialog);
+        given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.getProperties()).willReturn(properties);
         given(generatorDialog.isOK()).willReturn(true);
         generateFromFieldsCS.start(psiClass);
@@ -38,7 +38,7 @@ public class GenerationConcreteStrategyTest {
 
     @Test
     public void shouldNotGenerateFromFields() throws Exception {
-        given(generatorDialogFactory.createFromFields(psiClass)).willReturn(generatorDialog);
+        given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.isOK()).willReturn(false);
         generateFromFieldsCS.start(psiClass);
         assertThat(generateFromFieldsCS.isOk()).isFalse();
