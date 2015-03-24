@@ -10,6 +10,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import makasprzak.idea.plugins.propertiesstrategy.PropertiesConcreteStrategy;
 import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategy;
+import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategyChooser;
 import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategyClient;
 import makasprzak.idea.plugins.model.Property;
 
@@ -26,8 +27,9 @@ public class StepBuilderGeneratorAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
-        PropertiesStrategy propertiesStrategy = PropertiesConcreteStrategy.FROM_FIELDS.get();
-        generate(getCurrentElement(actionEvent), getPsiClass(getCurrentElement(actionEvent)), propertiesStrategy);
+        PsiClass psiClass = getPsiClass(getCurrentElement(actionEvent));
+        PropertiesStrategy propertiesStrategy = new PropertiesStrategyChooser().chooseFor(psiClass);
+        generate(getCurrentElement(actionEvent), psiClass, propertiesStrategy);
     }
 
     private PsiClass getPsiClass(PsiElement currentElement) {

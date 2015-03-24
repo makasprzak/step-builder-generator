@@ -17,7 +17,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GenerationConcreteStrategyTest {
+public class FromFieldsStrategyTest {
     
     @Mock private PsiClass psiClass;
     @Mock private DialogFactory generatorDialogFactory;
