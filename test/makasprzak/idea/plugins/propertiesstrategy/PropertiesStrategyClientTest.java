@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.generationstrategy;
+package makasprzak.idea.plugins.propertiesstrategy;
 
 import com.intellij.psi.PsiClass;
 import makasprzak.idea.plugins.model.Property;
@@ -18,35 +18,35 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GenerationStrategyClientTest {
+public class PropertiesStrategyClientTest {
 
-   @Mock private GenerationStrategyClient.PropertiesConsumer propertiesConsumer;
-   @Mock private GenerationStrategy generationStrategy;
-   @InjectMocks private GenerationStrategyClient generationStrategyClient;
+   @Mock private PropertiesStrategyClient.PropertiesConsumer propertiesConsumer;
+   @Mock private PropertiesStrategy propertiesStrategy;
+   @InjectMocks private PropertiesStrategyClient propertiesStrategyClient;
 
    @Mock private List<Property> properties;
    @Mock private PsiClass psiClass;
 
    @Test
    public void shouldExecuteStrategyGeneratingCode() throws Exception {
-      given(generationStrategy.isOk()).willReturn(true);
-      given(generationStrategy.getProperties()).willReturn(properties);
+      given(propertiesStrategy.isOk()).willReturn(true);
+      given(propertiesStrategy.getProperties()).willReturn(properties);
 
-      generationStrategyClient.executeStrategy(psiClass, generationStrategy);
+      propertiesStrategyClient.executeStrategy(psiClass, propertiesStrategy);
 
-      InOrder inOrder = inOrder(generationStrategy,propertiesConsumer);
-      inOrder.verify(generationStrategy).start(psiClass);
+      InOrder inOrder = inOrder(propertiesStrategy,propertiesConsumer);
+      inOrder.verify(propertiesStrategy).start(psiClass);
       inOrder.verify(propertiesConsumer).consume(properties);
    }
 
    @Test
    public void shouldExecuteStrategyNotGeneratingCode() throws Exception {
-      given(generationStrategy.isOk()).willReturn(false);
-      given(generationStrategy.getProperties()).willReturn(properties);
+      given(propertiesStrategy.isOk()).willReturn(false);
+      given(propertiesStrategy.getProperties()).willReturn(properties);
 
-      generationStrategyClient.executeStrategy(psiClass, generationStrategy);
+      propertiesStrategyClient.executeStrategy(psiClass, propertiesStrategy);
 
-      verify(generationStrategy).start(psiClass);
+      verify(propertiesStrategy).start(psiClass);
       verify(propertiesConsumer, never()).consume(anyList());
    }
 }

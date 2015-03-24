@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.generationstrategy;
+package makasprzak.idea.plugins.propertiesstrategy;
 
 import com.intellij.psi.PsiClass;
 import makasprzak.idea.plugins.dialog.DialogFactory;
@@ -7,11 +7,11 @@ import makasprzak.idea.plugins.model.Property;
 
 import java.util.List;
 
-public class GenerateFromFieldsCS implements GenerationStrategy {
+public class FromFieldsCS implements PropertiesStrategy {
     private final DialogFactory dialogFactory;
     private GeneratorDialog generatorDialog;
 
-    public GenerateFromFieldsCS(DialogFactory dialogFactory) {
+    public FromFieldsCS(DialogFactory dialogFactory) {
         this.dialogFactory = dialogFactory;
     }
 

@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.generationstrategy;
+package makasprzak.idea.plugins.propertiesstrategy;
 
 import com.intellij.psi.PsiClass;
 import makasprzak.idea.plugins.model.Property;
@@ -8,15 +8,15 @@ import java.util.List;
 /**
  * @author mkasprzak
  */
-public class GenerationStrategyClient {
+public class PropertiesStrategyClient {
 
    private final PropertiesConsumer propertiesConsumer;
 
-   public GenerationStrategyClient(PropertiesConsumer propertiesConsumer) {
+   public PropertiesStrategyClient(PropertiesConsumer propertiesConsumer) {
       this.propertiesConsumer = propertiesConsumer;
    }
 
-   public void executeStrategy(PsiClass psiClass, GenerationStrategy strategy) {
+   public void executeStrategy(PsiClass psiClass, PropertiesStrategy strategy) {
       strategy.start(psiClass);
       if (strategy.isOk())
          propertiesConsumer.consume(strategy.getProperties());

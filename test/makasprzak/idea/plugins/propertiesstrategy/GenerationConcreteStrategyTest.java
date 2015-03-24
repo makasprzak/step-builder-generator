@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.generationstrategy;
+package makasprzak.idea.plugins.propertiesstrategy;
 
 import com.intellij.psi.PsiClass;
 import makasprzak.idea.plugins.dialog.DialogFactory;
@@ -23,24 +23,24 @@ public class GenerationConcreteStrategyTest {
     @Mock private DialogFactory generatorDialogFactory;
     @Mock private GeneratorDialog generatorDialog;
     @Mock private List<Property> properties;
-    @InjectMocks private GenerateFromFieldsCS generateFromFieldsCS;
+    @InjectMocks private FromFieldsCS fromFieldsCS;
 
     @Test
     public void shouldGenerateFromFields() throws Exception {
         given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.getProperties()).willReturn(properties);
         given(generatorDialog.isOK()).willReturn(true);
-        generateFromFieldsCS.start(psiClass);
+        fromFieldsCS.start(psiClass);
         verify(generatorDialog).show();
-        assertThat(generateFromFieldsCS.isOk()).isTrue();
-        assertThat(generateFromFieldsCS.getProperties()).isEqualTo(properties);
+        assertThat(fromFieldsCS.isOk()).isTrue();
+        assertThat(fromFieldsCS.getProperties()).isEqualTo(properties);
     }
 
     @Test
     public void shouldNotGenerateFromFields() throws Exception {
         given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.isOK()).willReturn(false);
-        generateFromFieldsCS.start(psiClass);
-        assertThat(generateFromFieldsCS.isOk()).isFalse();
+        fromFieldsCS.start(psiClass);
+        assertThat(fromFieldsCS.isOk()).isFalse();
     }
 }

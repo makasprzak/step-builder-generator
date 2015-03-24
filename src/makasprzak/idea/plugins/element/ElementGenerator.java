@@ -24,7 +24,7 @@ public class ElementGenerator {
     }
 
     public String fieldDeclaration(Property property) {
-        return format("private %s %s;", property.getType().replace(" ...", "[]"), property.getName());
+        return format("private %s %s;", property.getType().replaceAll("\\s?\\.\\.\\.", "[]"), property.getName());
     }
 
     public String builderConstructor() {

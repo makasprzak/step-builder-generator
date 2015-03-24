@@ -41,7 +41,7 @@ public class PojoWithConstructor {
     }
 
     public static interface FriendsStep {
-        BuildStep withFriends(String ... friends);
+        BuildStep withFriends(String... friends);
     }
 
     public static interface BuildStep {
@@ -81,7 +81,7 @@ public class PojoWithConstructor {
         }
 
         @Override
-        public BuildStep withFriends(String ... friends) {
+        public BuildStep withFriends(String... friends) {
             this.friends = friends;
             return this;
         }
