@@ -3,15 +3,12 @@ package makasprzak.idea.plugins;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElementFactory;
 import makasprzak.idea.plugins.element.ElementGenerator;
 import makasprzak.idea.plugins.model.Pojo;
 import makasprzak.idea.plugins.model.Property;
-import makasprzak.idea.plugins.model.PsiPojo;
 import makasprzak.idea.plugins.model.StepBuilderPattern;
-
-import java.util.List;
-import java.util.Map;
 
 import static makasprzak.idea.plugins.model.StepBuilderPattern.Builder.stepBuilderPattern;
 
@@ -21,14 +18,11 @@ import static makasprzak.idea.plugins.model.StepBuilderPattern.Builder.stepBuild
  */
 public class BuilderPatternComposerImpl implements BuilderPatternComposer {
 
-    private final PsiElementGenerator psiElementGenerator;
     private final PsiElementFactory psiElementFactory;
     private final ElementGenerator elementGenerator;
 
-    public BuilderPatternComposerImpl(PsiElementGenerator psiElementGenerator,
-                                      PsiElementFactory psiElementFactory, 
+    public BuilderPatternComposerImpl(PsiElementFactory psiElementFactory,
                                       ElementGenerator elementGenerator) {
-        this.psiElementGenerator = psiElementGenerator;
         this.psiElementFactory = psiElementFactory;
         this.elementGenerator = elementGenerator;
     }

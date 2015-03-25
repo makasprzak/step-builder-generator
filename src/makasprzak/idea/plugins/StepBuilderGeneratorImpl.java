@@ -55,7 +55,7 @@ public class StepBuilderGeneratorImpl implements StepBuilderGenerator {
     }
 
     private BuilderPatternComposerImpl composer(Project project) {
-        return new BuilderPatternComposerImpl(new PsiElementGenerator(), getElementFactory(project), new ElementGenerator());
+        return new BuilderPatternComposerImpl(getElementFactory(project), new ElementGenerator());
     }
 
     private boolean containsConstructorWithArgs(PsiClass psiClass) {

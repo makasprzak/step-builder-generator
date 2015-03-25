@@ -1,22 +1,21 @@
 package makasprzak.idea.plugins.dialog;
 
+import com.google.common.base.Function;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
-import makasprzak.idea.plugins.PsiClassAdapter;
-import makasprzak.idea.plugins.model.Property;
+import makasprzak.idea.plugins.mappers.PsiParameterMapper;
+import makasprzak.idea.plugins.model.PsiPropertyContainer;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.transform;
-import static java.util.Arrays.asList;
 import static makasprzak.idea.plugins.PsiClassAdapter.forA;
-import static makasprzak.idea.plugins.mappers.PsiParameterMapper.toProperty;
+import static makasprzak.idea.plugins.model.PsiPropertyContainer.Builder.psiPropertyContainer;
 
-/**
- * @author mkasprzak
- */
 public class FromConstructorDialogFactory implements DialogFactory {
+
+   private final PsiParameterMapper psiParameterMapper = new PsiParameterMapper();
+
    @Override
    public GeneratorDialog create(PsiClass psiClass) {
       return new GeneratorDialog(
@@ -24,8 +23,16 @@ public class FromConstructorDialogFactory implements DialogFactory {
          transformConstructorArgumentsToProperties(forA(psiClass).getBiggestConstructorsArgs()));
    }
 
-   private List<Property> transformConstructorArgumentsToProperties(List<PsiParameter> psiParameters) {
-      return transform(psiParameters,toProperty());
+   private List<PsiPropertyContainer> transformConstructorArgumentsToProperties(List<PsiParameter> psiParameters) {
+      return transform(psiParameters, new Function<PsiParameter, PsiPropertyContainer>() {
+         @Override
+         public PsiPropertyContainer apply(PsiParameter psiParameter) {
+            return psiPropertyContainer()
+               .withPsiElement(psiParameter)
+               .withProperty(psiParameterMapper.map(psiParameter))
+               .build();
+         }
+      });
    }
 
 }

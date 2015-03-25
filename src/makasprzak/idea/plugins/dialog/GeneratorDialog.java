@@ -1,6 +1,6 @@
 package makasprzak.idea.plugins.dialog;
 
-import com.intellij.ide.util.DefaultPsiElementCellRenderer;
+import com.google.common.base.Function;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.psi.PsiClass;
@@ -8,18 +8,18 @@ import com.intellij.ui.CollectionListModel;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import makasprzak.idea.plugins.model.Property;
+import makasprzak.idea.plugins.model.PsiPropertyContainer;
 
 import javax.swing.*;
 import java.util.List;
 
-/**
- * Created by Maciej Kasprzak on 2014-09-21.
- */
+import static com.google.common.collect.Lists.transform;
+
 public class GeneratorDialog extends DialogWrapper{
-    private JList<Property> properties;
+    private JList<PsiPropertyContainer> properties;
     private final LabeledComponent<JPanel> component;
 
-    protected GeneratorDialog(PsiClass psiClass, List<Property> allProperties) {
+    protected GeneratorDialog(PsiClass psiClass, List<PsiPropertyContainer> allProperties) {
         super(psiClass.getProject());
         setTitle("Configure Step Builder");
         this.properties = new JBList(new CollectionListModel<>(allProperties));
@@ -48,6 +48,15 @@ public class GeneratorDialog extends DialogWrapper{
     }
 
     public List<Property> getProperties() {
-        return properties.getSelectedValuesList();
+        return transform(properties.getSelectedValuesList(), toProperty());
+    }
+
+    private Function<PsiPropertyContainer, Property> toProperty() {
+        return new Function<PsiPropertyContainer, Property>() {
+            @Override
+            public Property apply(PsiPropertyContainer psiPropertyContainer) {
+                return psiPropertyContainer.getProperty();
+            }
+        };
     }
 }
