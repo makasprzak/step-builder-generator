@@ -8,10 +8,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
-import makasprzak.idea.plugins.propertiesstrategy.PropertiesConcreteStrategy;
-import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategy;
-import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategyChooser;
-import makasprzak.idea.plugins.propertiesstrategy.PropertiesStrategyClient;
+import makasprzak.idea.plugins.properties.*;
 import makasprzak.idea.plugins.model.Property;
 
 import java.util.List;
@@ -28,21 +25,21 @@ public class StepBuilderGeneratorAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
         PsiClass psiClass = getPsiClass(getCurrentElement(actionEvent));
-        PropertiesStrategy propertiesStrategy = new PropertiesStrategyChooser().chooseFor(psiClass);
-        generate(getCurrentElement(actionEvent), psiClass, propertiesStrategy);
+        PropertiesProvider propertiesProvider = new PropertiesProviderFactory().createFor(psiClass);
+        generate(getCurrentElement(actionEvent), psiClass, propertiesProvider);
     }
 
     private PsiClass getPsiClass(PsiElement currentElement) {
         return currentElement == null ? null : PsiTreeUtil.getParentOfType(currentElement, PsiClass.class);
     }
 
-    private void generate(final PsiElement currentElement, final PsiClass psiClass, PropertiesStrategy propertiesStrategy) {
-        new PropertiesStrategyClient(new PropertiesStrategyClient.PropertiesConsumer() {
+    private void generate(final PsiElement currentElement, final PsiClass psiClass, PropertiesProvider propertiesProvider) {
+        propertiesProvider.getProperties(psiClass, new PropertiesConsumer() {
             @Override
             public void consume(List<Property> properties) {
                 stepBuilderGenerator.generateBuilderPattern(properties, psiClass, currentElement);
             }
-        }).executeStrategy(psiClass, propertiesStrategy);
+        });
     }
 
     private PsiClass getCurrentClass(AnActionEvent e) {

@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.propertiesstrategy;
+package makasprzak.idea.plugins.properties;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;

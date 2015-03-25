@@ -1,9 +1,6 @@
-package makasprzak.idea.plugins.propertiesstrategy;
+package makasprzak.idea.plugins.properties;
 
 import com.intellij.psi.PsiClass;
-import makasprzak.idea.plugins.model.Property;
-
-import java.util.List;
 
 /**
  * @author mkasprzak
@@ -22,7 +19,4 @@ public class PropertiesStrategyClient {
          propertiesConsumer.consume(strategy.getProperties());
    }
 
-   public static interface PropertiesConsumer {
-      void consume(List<Property> properties);
-   }
 }

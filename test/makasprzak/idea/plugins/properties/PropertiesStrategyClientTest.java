@@ -1,4 +1,4 @@
-package makasprzak.idea.plugins.propertiesstrategy;
+package makasprzak.idea.plugins.properties;
 
 import com.intellij.psi.PsiClass;
 import makasprzak.idea.plugins.model.Property;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesStrategyClientTest {
 
-   @Mock private PropertiesStrategyClient.PropertiesConsumer propertiesConsumer;
+   @Mock private PropertiesConsumer propertiesConsumer;
    @Mock private PropertiesStrategy propertiesStrategy;
    @InjectMocks private PropertiesStrategyClient propertiesStrategyClient;
 

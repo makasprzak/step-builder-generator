@@ -1,14 +1,14 @@
-package makasprzak.idea.plugins.propertiesstrategy;
+package makasprzak.idea.plugins.properties;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 
-public class PropertiesStrategyChooser {
-    public PropertiesStrategy chooseFor(PsiClass pojo) {
+public class PropertiesProviderFactory {
+    public PropertiesProvider createFor(PsiClass pojo) {
         if (hasConstructorsWithArgs(pojo))
-            return PropertiesConcreteStrategy.FROM_CONSTRUCTOR_ARGS.get();
+            return PropertiesProviderFactories.FROM_CONSTRUCTOR_ARGS.get();
         else
-            return PropertiesConcreteStrategy.FROM_SETTERS.get();
+            return PropertiesProviderFactories.FROM_SETTERS.get();
     }
 
     private boolean hasConstructorsWithArgs(PsiClass pojo) {

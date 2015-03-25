@@ -1,12 +1,8 @@
-package makasprzak.idea.plugins.propertiesstrategy;
+package makasprzak.idea.plugins.properties;
 
-import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
-import makasprzak.idea.plugins.PsiClassAdapter;
-import makasprzak.idea.plugins.mappers.PsiParameterMapper;
 import makasprzak.idea.plugins.model.Property;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.transform;
