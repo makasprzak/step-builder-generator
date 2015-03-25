@@ -32,6 +32,14 @@ public class ElementGeneratorTest {
     }
 
     @Test
+    public void shouldGenerateEmptyBuilderClass() throws Exception {
+        assertThat(generator.builderClass(emptyPojo)).isEqualTo(
+                "public static class Builder implements BuildStep {}"
+        );
+
+    }
+
+    @Test
     public void shouldGenerateFieldDeclaration() throws Exception {
         assertThat(generator.fieldDeclaration(property().withName("name").withType("String").build())).isEqualTo(
           "private String name;"

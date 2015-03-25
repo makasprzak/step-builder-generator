@@ -20,7 +20,10 @@ public class ElementGenerator {
                 return stepName(property);
             }
         }));
-        return "public static class Builder implements " + steps + ", BuildStep {}";
+        if(pojo.getProperties().isEmpty())
+            return "public static class Builder implements BuildStep {}";
+        else
+            return "public static class Builder implements " + steps + ", BuildStep {}";
     }
 
     public String fieldDeclaration(Property property) {
