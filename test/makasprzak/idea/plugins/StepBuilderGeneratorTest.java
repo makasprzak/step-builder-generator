@@ -1,10 +1,10 @@
 package makasprzak.idea.plugins;
 
 import com.google.common.base.Function;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiParameter;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import makasprzak.idea.plugins.mappers.PsiParameterMapper;
@@ -16,7 +16,8 @@ import java.util.List;
 import static com.google.common.collect.Lists.transform;
 import static com.intellij.openapi.application.PathManager.getJarPathForClass;
 import static java.util.Arrays.asList;
-import static makasprzak.idea.plugins.mappers.PsiFieldMapper.toProperty;
+import static java.util.Arrays.copyOf;
+import static makasprzak.idea.plugins.mappers.PsiSetterMapper.toProperty;
 
 public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
     @Override
@@ -29,7 +30,7 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
     }
 
     public void test_shouldSupportConstructorInjection() throws Exception {
-        shouldGenerateBuilderFromFields("constructor");
+        shouldGenerateBuilderFromConstructor("constructor");
     }
 
     public void test_shouldUseConstructorSignatureWhenChoosingConstructorInjection() throws Exception {
@@ -40,7 +41,7 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         shouldGenerateBuilder(prefix, new Function<PsiClass, List<Property>>() {
             @Override
             public List<Property> apply(PsiClass psiClass) {
-                return getPropertiesFromFields(psiClass);
+                return getPropertiesFromSetters(psiClass);
             }
         });    }
 
@@ -58,9 +59,14 @@ public class StepBuilderGeneratorTest extends LightCodeInsightFixtureTestCase{
         return transform(parameterList, PsiParameterMapper.toProperty());
     }
 
-    private List<Property> getPropertiesFromFields(PsiClass pojoWithSettersPsiClass) {
-        List<PsiField> psiFields = asList(pojoWithSettersPsiClass.getAllFields());
-        return transform(psiFields, toProperty());
+    private List<Property> getPropertiesFromSetters(PsiClass pojoWithSettersPsiClass) {
+        List<PsiMethod> allMethods = asList(pojoWithSettersPsiClass.getAllMethods());
+        return ImmutableList.copyOf(Iterables.transform(Iterables.filter(allMethods, new Predicate<PsiMethod>() {
+            @Override
+            public boolean apply(PsiMethod psiMethod) {
+                return psiMethod.getName().startsWith("set");
+            }
+        }), toProperty()));
     }
 
     private void shouldGenerateBuilder(String prefix, Function<PsiClass, List<Property>> toProperties) {

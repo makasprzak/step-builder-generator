@@ -16,7 +16,7 @@ import static makasprzak.idea.plugins.mappers.PsiParameterMapper.toProperty;
 /**
  * Created by Maciej on 2015-03-24.
  */
-public class FromConstructorArgsCS implements PropertiesStrategy {
+public class UseConstructorArgsPropertiesStrategy implements PropertiesStrategy {
     private PsiClass psiClass;
 
     @Override

@@ -21,20 +21,20 @@ public class PropertiesStrategyChooserTest {
     @Test
     public void shouldChooseFieldInjectionForNoExplicitConstructor_nullArray() throws Exception {
         given(psiPojo.getConstructors()).willReturn(null);
-        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_FIELDS.get());
+        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_SETTERS.get());
     }
 
     @Test
     public void shouldChooseFieldInjectionForNoExplicitConstructor_emptyArray() throws Exception {
         given(psiPojo.getConstructors()).willReturn(new PsiMethod[]{});
-        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_FIELDS.get());
+        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_SETTERS.get());
     }
 
     @Test
     public void shouldChooseFieldInjectionForJustDefaultConstructor() throws Exception {
         given(constructor.getParameterList().getParametersCount()).willReturn(0);
         given(psiPojo.getConstructors()).willReturn(new PsiMethod[]{constructor});
-        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_FIELDS.get());
+        assertThat(chooser.chooseFor(psiPojo)).isEqualTo(PropertiesConcreteStrategy.FROM_SETTERS.get());
     }
 
     @Test

@@ -8,7 +8,7 @@ public class PropertiesStrategyChooser {
         if (hasConstructorsWithArgs(pojo))
             return PropertiesConcreteStrategy.FROM_CONSTRUCTOR_ARGS.get();
         else
-            return PropertiesConcreteStrategy.FROM_FIELDS.get();
+            return PropertiesConcreteStrategy.FROM_SETTERS.get();
     }
 
     private boolean hasConstructorsWithArgs(PsiClass pojo) {

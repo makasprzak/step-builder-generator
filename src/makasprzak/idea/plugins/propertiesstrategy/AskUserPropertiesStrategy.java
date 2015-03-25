@@ -7,11 +7,11 @@ import makasprzak.idea.plugins.model.Property;
 
 import java.util.List;
 
-public class FromFieldsCS implements PropertiesStrategy {
+public class AskUserPropertiesStrategy implements PropertiesStrategy {
     private final DialogFactory dialogFactory;
     private GeneratorDialog generatorDialog;
 
-    public FromFieldsCS(DialogFactory dialogFactory) {
+    public AskUserPropertiesStrategy(DialogFactory dialogFactory) {
         this.dialogFactory = dialogFactory;
     }
 

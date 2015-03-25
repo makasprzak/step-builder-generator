@@ -10,7 +10,11 @@ public class PropertyCellRenderer implements ListCellRenderer<PsiPropertyContain
     private final DefaultPsiElementCellRenderer renderer = new DefaultPsiElementCellRenderer();
 
     @Override
-    public Component getListCellRendererComponent(JList<? extends PsiPropertyContainer> list, PsiPropertyContainer value, int index, boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(JList<? extends PsiPropertyContainer> list,
+                                                  PsiPropertyContainer value,
+                                                  int index,
+                                                  boolean isSelected,
+                                                  boolean cellHasFocus) {
         return renderer.getListCellRendererComponent(list,value.getPsiElement(),index,isSelected,cellHasFocus);
     }
 }

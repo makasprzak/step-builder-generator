@@ -4,8 +4,7 @@ package makasprzak.idea.plugins.dialog;
  * @author mkasprzak
  */
 public enum DialogFactories {
-   FROM_FIELDS(new FromFieldsDialogFactory()),
-   FROM_CONSTRUCTOR(new FromConstructorDialogFactory());
+   FROM_METHODS(new FromSettersDialogFactory());
    private final DialogFactory dialogFactory;
 
    private DialogFactories(DialogFactory dialogFactory) {

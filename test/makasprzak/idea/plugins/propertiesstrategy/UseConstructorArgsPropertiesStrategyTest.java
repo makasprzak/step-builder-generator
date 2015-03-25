@@ -5,12 +5,9 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import makasprzak.idea.plugins.model.Property;
-import org.fest.assertions.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -22,8 +19,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FromConstructorArgsCSTest {
-    @InjectMocks private FromConstructorArgsCS strategy;
+public class UseConstructorArgsPropertiesStrategyTest {
+    @InjectMocks private UseConstructorArgsPropertiesStrategy strategy;
 
     @Mock private PsiClass psiClass;
     @Mock private List<Property> properties;

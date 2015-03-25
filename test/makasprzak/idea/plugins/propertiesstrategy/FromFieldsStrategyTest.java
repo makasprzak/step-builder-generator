@@ -23,24 +23,24 @@ public class FromFieldsStrategyTest {
     @Mock private DialogFactory generatorDialogFactory;
     @Mock private GeneratorDialog generatorDialog;
     @Mock private List<Property> properties;
-    @InjectMocks private FromFieldsCS fromFieldsCS;
+    @InjectMocks private AskUserPropertiesStrategy askUserPropertiesStrategy;
 
     @Test
     public void shouldGenerateFromFields() throws Exception {
         given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.getProperties()).willReturn(properties);
         given(generatorDialog.isOK()).willReturn(true);
-        fromFieldsCS.start(psiClass);
+        askUserPropertiesStrategy.start(psiClass);
         verify(generatorDialog).show();
-        assertThat(fromFieldsCS.isOk()).isTrue();
-        assertThat(fromFieldsCS.getProperties()).isEqualTo(properties);
+        assertThat(askUserPropertiesStrategy.isOk()).isTrue();
+        assertThat(askUserPropertiesStrategy.getProperties()).isEqualTo(properties);
     }
 
     @Test
     public void shouldNotGenerateFromFields() throws Exception {
         given(generatorDialogFactory.create(psiClass)).willReturn(generatorDialog);
         given(generatorDialog.isOK()).willReturn(false);
-        fromFieldsCS.start(psiClass);
-        assertThat(fromFieldsCS.isOk()).isFalse();
+        askUserPropertiesStrategy.start(psiClass);
+        assertThat(askUserPropertiesStrategy.isOk()).isFalse();
     }
 }

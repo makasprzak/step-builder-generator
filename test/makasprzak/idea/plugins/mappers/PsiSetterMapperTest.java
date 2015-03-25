@@ -1,6 +1,7 @@
 package makasprzak.idea.plugins.mappers;
 
-import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -13,16 +14,18 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PsiFieldMapperTest {
+public class PsiSetterMapperTest {
     
-    @InjectMocks private PsiFieldMapper mapper;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private PsiField field;
+    @InjectMocks private PsiSetterMapper mapper;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private PsiMethod setter;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private PsiParameter setterArg;
     
     @Test
     public void shouldMapStringFieldToProperty() throws Exception {
-        when(field.getName()).thenReturn("someStringProperty");
-        when(field.getType().getPresentableText()).thenReturn("String");
-        assertThat(mapper.map(field)).isEqualTo(property()
+        when(setter.getName()).thenReturn("setSomeStringProperty");
+        when(setter.getParameterList().getParameters()).thenReturn(new PsiParameter[]{setterArg});
+        when(setterArg.getType().getPresentableText()).thenReturn("String");
+        assertThat(mapper.map(setter)).isEqualTo(property()
                 .withName("someStringProperty")
                 .withType("String")
                 .build());
