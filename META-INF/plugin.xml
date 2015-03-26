@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>makasprzak.step-builder-generator</id>
     <name>Step Builder Pattern generator</name>
-    <version>1.0</version>
+    <version>1.1</version>
     <vendor email="mail.maciej.kasprzak@gmail.com" url="https://github.com/makasprzak">Maciej Kasprzak</vendor>
 
     <description><![CDATA[
