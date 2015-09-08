@@ -85,7 +85,7 @@ public class ElementGenerator {
     }
 
     public String stepInterface(Property forProperty, Optional<Property> nextProperty) {
-        return format("public static interface %1$s {\n" +
+        return format("public interface %1$s {\n" +
                         "\t%2$s with%3$s(%4$s %5$s);\n" +
                         "}\n",
                 stepName(forProperty),
@@ -97,7 +97,7 @@ public class ElementGenerator {
     }
 
     public String buildStepInterface(Pojo pojo) {
-        return format("public static interface BuildStep {\n" +
+        return format("public interface BuildStep {\n" +
                 "    %s build();\n" +
                 "}", pojo.getName());
     }
